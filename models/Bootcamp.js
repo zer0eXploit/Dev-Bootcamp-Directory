@@ -134,7 +134,14 @@ BootcampSchema.pre('save', async function (next) {
   next();
 });
 
-// Rever populate courses
+// Cascade delete courses associated with a bootcamp if the camp is removed
+BootcampSchema.pre('remove', async function (next) {
+  // Either import the Course model or access it via this.model
+  await this.model('Course').deleteMany({ bootcamp: this._id });
+  next();
+});
+
+// Reverse populate courses
 BootcampSchema.virtual('courses', {
   ref: 'Course',
   localField: '_id',
