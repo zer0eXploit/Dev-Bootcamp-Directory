@@ -96,7 +96,15 @@ const BootcampSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: { createdAt: 'firstCreated', updatedAt: 'lastUpdated' } },
+  {
+    timestamps: { createdAt: 'firstCreated', updatedAt: 'lastUpdated' },
+    toJSON: {
+      virtuals: true,
+    },
+    toObject: {
+      virtuals: true,
+    },
+  },
 );
 
 // Create a slug from name
@@ -124,6 +132,14 @@ BootcampSchema.pre('save', async function (next) {
   this.address = undefined;
 
   next();
+});
+
+// Rever populate courses
+BootcampSchema.virtual('courses', {
+  ref: 'Course',
+  localField: '_id',
+  foreignField: 'bootcamp',
+  justOne: false,
 });
 
 module.exports = mongoose.model('Bootcamp', BootcampSchema);
