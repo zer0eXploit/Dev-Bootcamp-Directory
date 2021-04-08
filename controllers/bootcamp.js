@@ -23,7 +23,7 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
   const regex = /\b(gt|lt|lte|gte|in)\b/g;
   queryStr = queryStr.replace(regex, (match) => `$${match}`);
 
-  const query = Bootcamp.find(JSON.parse(queryStr));
+  const query = Bootcamp.find(JSON.parse(queryStr)).populate('courses');
 
   // if select is present in query string strips the values
   if (req.query.select) {
