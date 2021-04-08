@@ -14,6 +14,7 @@ connectDB();
 
 // Routers
 const bootcamp = require('./routes/bootcamp');
+const course = require('./routes/course');
 
 // App initialization
 const app = express();
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV === 'Development') {
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
+app.use('/api/v1/courses', course);
 
 // Error Handler Middleware
 // Call only after mounting routers
