@@ -3,6 +3,7 @@ const {
   getCourses,
   getCourse,
   createCourse,
+  updateCourse,
 } = require('../controllers/course');
 
 const router = express.Router({ mergeParams: true });
@@ -11,6 +12,6 @@ const router = express.Router({ mergeParams: true });
 // because of the forwarding at ./routes/bootcamp.js
 router.route('/').get(getCourses).post(createCourse);
 
-router.route('/:id').get(getCourse);
+router.route('/:id').get(getCourse).put(updateCourse);
 
 module.exports = router;
