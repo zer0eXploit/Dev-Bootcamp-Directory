@@ -12,6 +12,7 @@ const {
   updateBootcamp,
   deleteBootcamp,
   getBootcampsWithinRadius,
+  uploadBootcampPhoto,
 } = require('../controllers/bootcamp');
 
 router.route('/').get(getBootcamps).post(createBootcamp);
@@ -24,12 +25,14 @@ router
 
 // Get a list of courses inside a bootcamp
 // Rather than importing the course controller here,
-// and registering a controller,
+// and registering the controller,
 // the route handler for courses is used.
 // Since :bootcampID is used here, merge params must be
 // passed to course router as an option.
 router.use('/:bootcampID/courses', courseRouter);
 
 router.route('/radius/:zipCode/:distance').get(getBootcampsWithinRadius);
+
+router.route('/:id/photo').put(uploadBootcampPhoto);
 
 module.exports = router;
