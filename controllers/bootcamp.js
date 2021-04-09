@@ -9,68 +9,7 @@ const geocoder = require('../utils/geocoder');
 // @route   GET /api/v1/bootcamps
 // @access  Public
 exports.getBootcamps = asyncHandler(async (req, res, next) => {
-  const reqQuery = { ...req.query };
-  const queryParams = ['select', 'sortBy', 'page', 'limit'];
-
-  queryParams.map((field) => delete reqQuery[field]);
-
-  let queryStr = JSON.stringify(reqQuery);
-
-  // \b is word boundary
-  // any word that is not inside \w is a word boundary
-  // for example in 'hello-world' dash is a word boundary
-  // because gt, lt, etc., are surrounded by quotes: "gt" like so,
-  // they fall between word boundaries
-
-  const regex = /\b(gt|lt|lte|gte|in)\b/g;
-  queryStr = queryStr.replace(regex, (match) => `$${match}`);
-
-  const query = Bootcamp.find(JSON.parse(queryStr)).populate('courses');
-
-  // if select is present in query string strips the values
-  if (req.query.select) {
-    query.select(req.query.select.split(',').join(' '));
-  }
-
-  if (req.query.sortBy) {
-    query.sort(req.query.sortBy.split(',').join(' '));
-  } else {
-    query.sort('-firstCreated');
-  }
-
-  // Pagination
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit) || 25;
-  const startIdx = (page - 1) * limit;
-  const endIdx = page * limit;
-  const total = await Bootcamp.countDocuments();
-
-  query.skip(startIdx).limit(limit);
-
-  const bootcamps = await query;
-
-  // Pagination Object
-  const pagination = {};
-  if (endIdx < total) {
-    pagination.next = {
-      page: page + 1,
-      limit,
-    };
-  }
-
-  if (startIdx > 0) {
-    pagination.prev = {
-      page: page - 1,
-      limit,
-    };
-  }
-
-  res.status(200).json({
-    success: true,
-    count: bootcamps.length,
-    data: bootcamps,
-    pagination,
-  });
+  res.status(200).json(res.advancedResults);
 });
 
 // @desc    Create a new bootcamp
