@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
@@ -19,6 +20,9 @@ const course = require('./routes/course');
 
 // App initialization
 const app = express();
+
+// Static Folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Apply Middlewares
 app.use(express.json());
