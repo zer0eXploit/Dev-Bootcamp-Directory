@@ -4,6 +4,12 @@ const router = express.Router();
 // Routers
 const courseRouter = require('./course');
 
+// Models
+const Bootcamp = require('../models/Bootcamp');
+
+// Middlewares
+const advancedResults = require('../middlewares/advancedResults');
+
 // Controllers
 const {
   getBootcamps,
@@ -15,7 +21,10 @@ const {
   uploadBootcampPhoto,
 } = require('../controllers/bootcamp');
 
-router.route('/').get(getBootcamps).post(createBootcamp);
+router
+  .route('/')
+  .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
+  .post(createBootcamp);
 
 router
   .route('/:id')
