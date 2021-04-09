@@ -1,6 +1,8 @@
+const path = require('path');
+
 const Bootcamp = require('../models/Bootcamp');
-const asyncHandler = require('../middlewares/asyncHandler');
 const ErrorResponse = require('../utils/errorResponse');
+const asyncHandler = require('../middlewares/asyncHandler');
 const geocoder = require('../utils/geocoder');
 
 // @desc    Get all bootcamps
@@ -160,5 +162,64 @@ exports.getBootcampsWithinRadius = asyncHandler(async (req, res, next) => {
     success: true,
     count: bootcamps.length,
     data: bootcamps,
+  });
+});
+
+// @desc    Upload bootcamp photo
+// @route   PUT /api/v1/bootcamps/:id/photo
+// @access  Private
+exports.uploadBootcampPhoto = asyncHandler(async (req, res, next) => {
+  const bootcamp = await Bootcamp.findById(req.params.id);
+
+  if (!bootcamp)
+    return next(
+      new ErrorResponse(`Resource with ID ${req.params.id} is not found.`, 404),
+    );
+
+  if (!req.files) {
+    return next(new ErrorResponse(`Please upload a photo.`, 400));
+  }
+
+  const file = req.files.file;
+
+  // if the uploaded file is not from field name = file
+  if (!file) {
+    return next(
+      new ErrorResponse(
+        `Please upload the photo from the field name of file.`,
+        400,
+      ),
+    );
+  }
+
+  // Check if image or not
+  if (!file.mimetype.startsWith('image')) {
+    return next(new ErrorResponse(`Please upload an image file.`, 400));
+  }
+
+  // Check if larger than allowed limit
+  if (file.size > process.env.FILE_SIZE_LIMIT_BYTES) {
+    return next(new ErrorResponse(`File size larger than 5MB.`, 413));
+  }
+
+  // Create a unique filename
+  file.name = `photo_${bootcamp.id}${path.parse(file.name).ext}`;
+
+  const imagePath = `${process.env.UPLOAD_FOLDER}/${file.name}`;
+
+  file.mv(imagePath, async (err) => {
+    if (err) {
+      console.log(err);
+      return next(new ErrorResponse(`Error saving bootcamp photo.`, 500));
+    }
+
+    await Bootcamp.findByIdAndUpdate(bootcamp.id, { photo: file.name });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        imagUrl: `${process.env.DOMAIN_NAME}/images/bootcamps/${file.name}`,
+      },
+    });
   });
 });
