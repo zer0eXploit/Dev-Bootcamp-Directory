@@ -17,6 +17,7 @@ connectDB();
 // Routers
 const bootcamp = require('./routes/bootcamp');
 const course = require('./routes/course');
+const auth = require('./routes/auth');
 
 // App initialization
 const app = express();
@@ -36,6 +37,7 @@ app.use(fileUpload());
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
 app.use('/api/v1/courses', course);
+app.use('/api/v1/auth', auth);
 
 // Error Handler Middleware
 // Call only after mounting routers
