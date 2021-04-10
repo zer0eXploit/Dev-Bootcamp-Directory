@@ -42,6 +42,10 @@ UserSchema.methods.getSignedToken = function () {
   });
 };
 
+UserSchema.methods.isPasswordCorrect = async function (plainPassword) {
+  return await bcrypt.compare(plainPassword, this.password);
+};
+
 UserSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(10);
 
