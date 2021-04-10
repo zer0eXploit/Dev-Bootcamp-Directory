@@ -9,7 +9,7 @@ const Bootcamp = require('../models/Bootcamp');
 
 // Middlewares
 const advancedResults = require('../middlewares/advancedResults');
-const { protect } = require('../middlewares/auth');
+const { protect, authorize } = require('../middlewares/auth');
 
 // Controllers
 const {
@@ -25,13 +25,13 @@ const {
 router
   .route('/')
   .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
-  .post(protect, createBootcamp);
+  .post(protect, authorize('publisher', 'admin'), createBootcamp);
 
 router
   .route('/:id')
   .get(getBootcamp)
-  .put(protect, updateBootcamp)
-  .delete(protect, deleteBootcamp);
+  .put(protect, authorize('publisher', 'admin'), updateBootcamp)
+  .delete(protect, authorize('publisher', 'admin'), deleteBootcamp);
 
 // Get a list of courses inside a bootcamp
 // Rather than importing the course controller here,

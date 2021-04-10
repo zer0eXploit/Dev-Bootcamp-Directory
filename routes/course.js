@@ -14,7 +14,7 @@ const Course = require('../models/Course');
 
 // Middlewares
 const advancedResults = require('../middlewares/advancedResults');
-const { protect } = require('../middlewares/auth');
+const { protect, authorize } = require('../middlewares/auth');
 
 const router = express.Router({ mergeParams: true });
 
@@ -28,12 +28,12 @@ const toPopulate = {
 router
   .route('/')
   .get(advancedResults(Course, toPopulate), getCourses)
-  .post(protect, createCourse);
+  .post(protect, authorize('publisher', 'admin'), createCourse);
 
 router
   .route('/:id')
   .get(getCourse)
-  .put(protect, updateCourse)
-  .delete(protect, deleteCourse);
+  .put(protect, authorize('publisher', 'admin'), updateCourse)
+  .delete(protect, authorize('publisher', 'admin'), deleteCourse);
 
 module.exports = router;
