@@ -43,3 +43,18 @@ exports.protect = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse(`${UNAUTHORIZED}`, 401));
   }
 });
+
+exports.authorize = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new ErrorResponse(
+          `Certain permission is not met to access this resourece.`,
+          403,
+        ),
+      );
+    }
+
+    next();
+  };
+};
