@@ -43,6 +43,22 @@ exports.authLogin = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+// @desc    Get logged in user information.
+// @route   GET /api/v1/auth/me
+// @access  Private
+exports.authGetMe = asyncHandler(async (req, res, next) => {
+  const user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorResponse(`User not found.`, 404));
+  }
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
 // Attach cookie to response and send response
 const sendTokenResponse = (user, statusCode, res) => {
   const token = user.getSignedToken();
