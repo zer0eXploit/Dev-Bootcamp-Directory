@@ -18,12 +18,7 @@ exports.authRegister = asyncHandler(async (req, res, next) => {
     role,
   });
 
-  const token = user.getSignedToken();
-
-  res.status(200).json({
-    success: true,
-    token,
-  });
+  sendTokenResponse(user, 200, res);
 });
 
 // @desc    Logs a user in
@@ -45,7 +40,26 @@ exports.authLogin = asyncHandler(async (req, res, next) => {
 
   if (!pwCorrect) return next(new ErrorResponse(`Bad credentials.`, 401));
 
-  res.status(200).json({
-    token: user.getSignedToken(),
-  });
+  sendTokenResponse(user, 200, res);
 });
+
+// Attach cookie to response and send response
+const sendTokenResponse = (user, statusCode, res) => {
+  const token = user.getSignedToken();
+
+  const option = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES * 24 * 3600 * 1000,
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === 'Production') {
+    option.secure = true;
+  }
+
+  return res.status(statusCode).cookie('token', token, option).json({
+    success: true,
+    token,
+  });
+};
