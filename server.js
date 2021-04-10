@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
 const fileUpload = require('express-fileupload');
+const cookieParser = require('cookie-parser');
 
 const connectDB = require('./configs/db');
 const errorHandler = require('./middlewares/errorHandler');
@@ -33,6 +34,7 @@ if (process.env.NODE_ENV === 'Development') {
 }
 
 app.use(fileUpload());
+app.use(cookieParser());
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
