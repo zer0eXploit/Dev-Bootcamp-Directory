@@ -9,6 +9,7 @@ const Bootcamp = require('../models/Bootcamp');
 
 // Middlewares
 const advancedResults = require('../middlewares/advancedResults');
+const { protect } = require('../middlewares/auth');
 
 // Controllers
 const {
@@ -24,13 +25,13 @@ const {
 router
   .route('/')
   .get(advancedResults(Bootcamp, 'courses'), getBootcamps)
-  .post(createBootcamp);
+  .post(protect, createBootcamp);
 
 router
   .route('/:id')
   .get(getBootcamp)
-  .put(updateBootcamp)
-  .delete(deleteBootcamp);
+  .put(protect, updateBootcamp)
+  .delete(protect, deleteBootcamp);
 
 // Get a list of courses inside a bootcamp
 // Rather than importing the course controller here,
