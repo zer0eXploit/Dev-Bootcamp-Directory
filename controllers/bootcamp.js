@@ -16,6 +16,24 @@ exports.getBootcamps = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/bootcamps
 // @access  Private
 exports.createBootcamp = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
+
+  const bootCampExists = await Bootcamp.findOne({
+    user: _id,
+  });
+
+  if (bootCampExists && role !== 'admin') {
+    return next(
+      new ErrorResponse(
+        `A bootcamp is already created by the user ${_id}.`,
+        403,
+      ),
+    );
+  }
+
+  // Add user id to req.body
+  req.body.user = _id;
+
   const bootcamp = await Bootcamp.create(req.body);
 
   res.status(201).json({
