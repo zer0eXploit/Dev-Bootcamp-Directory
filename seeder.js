@@ -10,13 +10,14 @@ dotenv.config({ path: './configs/config.env' });
 // Import Models
 const Bootcamp = require('./models/Bootcamp');
 const Course = require('./models/Course');
+const User = require('./models/User');
 
 // Connect to MongoDB
 mongoose
   .connect(process.env.DB_URI, {
     useNewUrlParser: true,
     useCreateIndex: true,
-    useFindAndModify: true,
+    useFindAndModify: false,
     useUnifiedTopology: true,
   })
   .then((conn) =>
@@ -27,17 +28,20 @@ mongoose
   );
 
 //   Read local json files
-const bootcamps = JSON.parse(
-  fs.readFileSync(`${__dirname}/data/bootcamps.json`),
-);
+const JSONPath = `${__dirname}/data`;
 
-const courses = JSON.parse(fs.readFileSync(`${__dirname}/data/courses.json`));
+const bootcamps = JSON.parse(fs.readFileSync(`${JSONPath}/bootcamps.json`));
+
+const courses = JSON.parse(fs.readFileSync(`${JSONPath}/courses.json`));
+
+const users = JSON.parse(fs.readFileSync(`${JSONPath}/users.json`));
 
 // Seed into database
 const seedToDB = async () => {
   try {
     await Bootcamp.create(bootcamps);
     await Course.create(courses);
+    await User.create(users);
     console.log(`Data seeded.`.green.inverse);
     process.exit();
   } catch (e) {
@@ -50,6 +54,7 @@ const destroyDB = async () => {
   try {
     await Bootcamp.deleteMany();
     await Course.deleteMany();
+    await User.deleteMany();
     console.log(`All data deleted.`.green.inverse);
     process.exit();
   } catch (e) {
