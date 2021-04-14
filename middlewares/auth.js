@@ -39,7 +39,6 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
     next();
   } catch (e) {
-    console.log(e.red);
     return next(new ErrorResponse(`${UNAUTHORIZED}`, 401));
   }
 });
