@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -44,6 +46,21 @@ UserSchema.methods.getSignedToken = function () {
 
 UserSchema.methods.isPasswordCorrect = async function (plainPassword) {
   return await bcrypt.compare(plainPassword, this.password);
+};
+
+UserSchema.methods.getResetPasswordToken = function () {
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // store the hashed version
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  this.resetPasswordExpire = new Date() + 10 * 60 * 1000;
+
+  // return the original version for the client to use
+  return resetToken;
 };
 
 UserSchema.pre('save', async function (next) {
