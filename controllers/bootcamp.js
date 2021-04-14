@@ -63,15 +63,27 @@ exports.getBootcamp = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/bootcamps/:id
 // @access  Private
 exports.updateBootcamp = asyncHandler(async (req, res, next) => {
-  const bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const { _id, role } = req.user;
+
+  let bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp)
     next(
       new ErrorResponse(`Resource with ID ${req.params.id} is not found.`, 404),
     );
+
+  // Check if current user is not an owner or an admin
+  if (!bootcamp.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(`Permission denied to modify ${req.params.id}.`, 403),
+    );
+  }
+
+  // Permissions clear because user is the owner and an admin
+  bootcamp = await Bootcamp.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
   res.status(200).json({
     success: true,
@@ -83,6 +95,7 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/v1/bootcamps/:id
 // @access  Private
 exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
   const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp)
@@ -90,6 +103,14 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
       new ErrorResponse(`Resource with ID ${req.params.id} is not found.`, 404),
     );
 
+  // Check if current user is not an owner and an admin
+  if (!bootcamp.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(`Permission denied to delete ${req.params.id}.`, 403),
+    );
+  }
+
+  // Permissions clear because user is the owner or an admin
   bootcamp.remove();
 
   res.status(200).json({
@@ -126,12 +147,23 @@ exports.getBootcampsWithinRadius = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/bootcamps/:id/photo
 // @access  Private
 exports.uploadBootcampPhoto = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
   const bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp)
     return next(
       new ErrorResponse(`Resource with ID ${req.params.id} is not found.`, 404),
     );
+
+  // Check if current user is not an owner and an admin
+  if (!bootcamp.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(
+        `Permission denied to upload photo for ${req.params.id}.`,
+        403,
+      ),
+    );
+  }
 
   if (!req.files) {
     return next(new ErrorResponse(`Please upload a photo.`, 400));
