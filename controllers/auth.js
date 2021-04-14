@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 // Models
 const User = require('../models/User');
 
@@ -46,8 +48,8 @@ exports.authLogin = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
-// @desc    Reset user account password.
-// @route   GET /api/v1/auth/forgot-password
+// @desc    Request password reset email.
+// @route   POST /api/v1/auth/forgot-password
 // @access  Public
 exports.authForgotPassword = asyncHandler(async (req, res, next) => {
   const { email } = req.body;
@@ -87,6 +89,31 @@ exports.authForgotPassword = asyncHandler(async (req, res, next) => {
     success: true,
     data: {},
   });
+});
+
+// @desc    Reset password.
+// @route   PUT /api/v1/auth/reset-password/:resetToken
+// @access  Public
+exports.authResetPassword = asyncHandler(async (req, res, next) => {
+  const resetTokenDigest = crypto
+    .createHash('sha256')
+    .update(req.params.resetToken)
+    .digest('hex');
+
+  const user = await User.findOne({
+    resetPasswordToken: resetTokenDigest,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  if (!user) return next(new ErrorResponse(`Invalid token provided.`, 400));
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  sendTokenResponse(user, 200, res);
 });
 
 // @desc    Get logged in user information.
