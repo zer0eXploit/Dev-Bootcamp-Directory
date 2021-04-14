@@ -116,6 +116,53 @@ exports.authResetPassword = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+// @desc    Update User's Name and Email Address
+// @route   PUT /api/v1/auth/me/update-info
+// @access  Private
+exports.authUpdateInfo = asyncHandler(async (req, res, next) => {
+  const { name, email } = req.body;
+
+  if (!name || !email)
+    return next(new ErrorResponse(`Name and Email required.`, 400));
+
+  let user = await User.findById(req.user.id);
+
+  if (!user) {
+    return next(new ErrorResponse(`User not found.`, 404));
+  }
+
+  user = await User.findByIdAndUpdate(req.user.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+});
+
+// @desc    Update Password
+// @route   PUT /api/v1/auth/update-password
+// @access  Public
+exports.authUpdatePassword = asyncHandler(async (req, res, next) => {
+  const { oldPassword, newPassword } = req.body;
+
+  if (!oldPassword || !newPassword)
+    return next(new ErrorResponse(`Please enter old and new passwords.`, 400));
+
+  const user = await User.findById(req.user.id).select('+password');
+  const pwCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if (!pwCorrect)
+    return next(new ErrorResponse(`Incorrect old password.`, 401));
+
+  user.password = newPassword;
+  await user.save();
+
+  sendTokenResponse(user, 200, res);
+});
+
 // @desc    Get logged in user information.
 // @route   GET /api/v1/auth/me
 // @access  Private
