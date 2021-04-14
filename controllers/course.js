@@ -45,7 +45,10 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
 // @route   POST /api/v1/bootcamps/:bootcampID/courses
 // @access  Private
 exports.createCourse = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
+
   req.body.bootcamp = req.params.bootcampID;
+  req.body.user = _id;
 
   const bootcamp = await Bootcamp.findById(req.params.bootcampID);
 
@@ -54,6 +57,16 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
       new ErrorResponse(
         `Bootcamp with ID ${req.params.bootcampID} is not found.`,
         404,
+      ),
+    );
+  }
+
+  // Check if current user is not an owner or an admin
+  if (!bootcamp.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(
+        `Permission denied to add a course to ${req.params.bootcampID}.`,
+        403,
       ),
     );
   }
@@ -70,11 +83,19 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
 // @route   PUT /api/v1/courses/:id
 // @access  Private
 exports.updateCourse = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
   const course = await Course.findById(req.params.id);
 
   if (!course) {
     return next(
       new ErrorResponse(`Course with ID ${req.params.id} is not found.`, 404),
+    );
+  }
+
+  // Check if current user is not an owner or an admin
+  if (!course.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(`Permission denied to update ${req.params.id}.`, 403),
     );
   }
 
@@ -93,11 +114,19 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 // @route   DELETE /api/v1/courses/:id
 // @access  Private
 exports.deleteCourse = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
   const course = await Course.findById(req.params.id);
 
   if (!course) {
     return next(
       new ErrorResponse(`Course with ID ${req.params.id} is not found.`, 404),
+    );
+  }
+
+  // Check if current user is not an owner or an admin
+  if (!course.user.equals(_id) && role !== 'admin') {
+    next(
+      new ErrorResponse(`Permission denied to update ${req.params.id}.`, 403),
     );
   }
 
