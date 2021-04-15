@@ -21,6 +21,9 @@ const course = require('./routes/course');
 const auth = require('./routes/auth');
 const user = require('./routes/user');
 
+// Controllers
+const FourOFour = require('./controllers/404');
+
 // App initialization
 const app = express();
 
@@ -47,6 +50,8 @@ app.use('/api/v1/users', user);
 // Call only after mounting routers
 // to catch errors occurred on routes
 app.use(errorHandler);
+
+app.use(FourOFour);
 
 // Port Binding
 const PORT = process.env.PORT || '3000';
