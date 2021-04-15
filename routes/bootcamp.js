@@ -3,6 +3,7 @@ const router = express.Router();
 
 // Routers
 const courseRouter = require('./course');
+const reviewRouter = require('./review');
 
 // Models
 const Bootcamp = require('../models/Bootcamp');
@@ -40,6 +41,9 @@ router
 // Since :bootcampID is used here, merge params must be
 // passed to course router as an option.
 router.use('/:bootcampID/courses', courseRouter);
+
+// same as above but for reviews
+router.use('/:bootcampID/reviews', reviewRouter);
 
 router.route('/radius/:zipCode/:distance').get(getBootcampsWithinRadius);
 
