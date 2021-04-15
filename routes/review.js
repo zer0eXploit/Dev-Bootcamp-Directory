@@ -1,7 +1,12 @@
 const express = require('express');
 
 // Controllers
-const { getReviews, getReview, addReview } = require('../controllers/review');
+const {
+  getReviews,
+  getReview,
+  addReview,
+  updateReview,
+} = require('../controllers/review');
 
 // Models
 const Review = require('../models/Review');
@@ -24,6 +29,9 @@ router
   .get(advancedResults(Review, toPopulate), getReviews)
   .post(protect, authorize('user', 'admin'), addReview);
 
-router.route('/:id').get(getReview);
+router
+  .route('/:id')
+  .get(getReview)
+  .put(protect, authorize('user', 'admin'), updateReview);
 
 module.exports = router;
