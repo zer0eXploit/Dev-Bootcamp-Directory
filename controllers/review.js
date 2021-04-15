@@ -56,7 +56,7 @@ exports.getReview = asyncHandler(async (req, res, next) => {
 
 // @desc    Add a review
 // @route   POST /api/v1/bootcamps/:bootcampID/reviews
-// @access  Public
+// @access  Private
 exports.addReview = asyncHandler(async (req, res, next) => {
   req.body.bootcamp = req.params.bootcampID;
   req.body.user = req.user._id;
@@ -66,5 +66,37 @@ exports.addReview = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: review,
+  });
+});
+
+// @desc    Update a review
+// @route   PUT /api/v1/reviews/:id
+// @access  Private
+exports.updateReview = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
+
+  let review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(
+      new ErrorResponse(`Review with ID ${req.params.id} is not found.`, 404),
+    );
+  }
+
+  // Check if current user is not an owner or an admin
+  if (!review.user.equals(_id) && role !== 'admin')
+    next(new ErrorResponse(`Permission denied to update the review.`, 403));
+
+  // Used this way to update because,
+  // there is no post mongoose hook for findByIdAndUpdate
+  await Review.updateOne({ _id: req.params.id }, req.body, {
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      message: 'Fields updated.',
+    },
   });
 });
