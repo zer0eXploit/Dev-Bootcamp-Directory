@@ -76,4 +76,15 @@ ReviewSchema.pre('remove', function (next) {
   next();
 });
 
+ReviewSchema.post('updateOne', async function () {
+  // just checking if the rating field is present
+  // assuming fields that are going to be updated are passed to request body
+  if (!this._update['$set'].rating) return;
+
+  // couldn't access document being updated here
+  // refer to mongoose docs
+  const docToUpdate = await this.model.findOne(this.getQuery());
+  docToUpdate.constructor.setAverageRating(docToUpdate.bootcamp);
+});
+
 module.exports = mongoose.model('Review', ReviewSchema);
