@@ -54,9 +54,15 @@ ReviewSchema.statics.setAverageRating = async function (bootcampID) {
 
   // Insert into db
   try {
-    await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
-      averageRating: avgRating[0]['avgRating'],
-    });
+    if (!!!avgRating.length) {
+      await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
+        averageRating: 0,
+      });
+    } else {
+      await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
+        averageRating: avgRating[0]['avgRating'],
+      });
+    }
   } catch (e) {
     console.log(e);
   }
@@ -72,6 +78,7 @@ ReviewSchema.pre('save', function (next) {
 
 ReviewSchema.pre('remove', function (next) {
   // this.constructor is the Review Model itself
+  console.log('I should be removed?');
   this.constructor.setAverageRating(this.bootcamp);
   next();
 });
