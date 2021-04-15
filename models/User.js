@@ -86,7 +86,7 @@ UserSchema.pre('remove', async function (next) {
   // Delete all bootcamps by that user
   for (bootcamp of bootcamps) {
     const b = await this.model('Bootcamp').findById(bootcamp.id);
-    b.remove();
+    await b.remove();
   }
 
   next();

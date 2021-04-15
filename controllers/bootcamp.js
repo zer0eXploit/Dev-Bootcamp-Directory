@@ -111,7 +111,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
   }
 
   // Permissions clear because user is the owner or an admin
-  bootcamp.remove();
+  await bootcamp.remove();
 
   res.status(200).json({
     success: true,
