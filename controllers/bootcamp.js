@@ -68,13 +68,13 @@ exports.updateBootcamp = asyncHandler(async (req, res, next) => {
   let bootcamp = await Bootcamp.findById(req.params.id);
 
   if (!bootcamp)
-    next(
+    return next(
       new ErrorResponse(`Resource with ID ${req.params.id} is not found.`, 404),
     );
 
   // Check if current user is not an owner or an admin
   if (!bootcamp.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(`Permission denied to modify ${req.params.id}.`, 403),
     );
   }
@@ -105,7 +105,7 @@ exports.deleteBootcamp = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner and an admin
   if (!bootcamp.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(`Permission denied to delete ${req.params.id}.`, 403),
     );
   }
@@ -157,7 +157,7 @@ exports.uploadBootcampPhoto = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner and an admin
   if (!bootcamp.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(
         `Permission denied to upload photo for ${req.params.id}.`,
         403,

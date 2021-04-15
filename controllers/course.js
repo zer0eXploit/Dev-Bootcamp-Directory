@@ -63,7 +63,7 @@ exports.createCourse = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner or an admin
   if (!bootcamp.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(
         `Permission denied to add a course to ${req.params.bootcampID}.`,
         403,
@@ -94,7 +94,7 @@ exports.updateCourse = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner or an admin
   if (!course.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(`Permission denied to update ${req.params.id}.`, 403),
     );
   }
@@ -125,7 +125,7 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner or an admin
   if (!course.user.equals(_id) && role !== 'admin') {
-    next(
+    return next(
       new ErrorResponse(`Permission denied to delete ${req.params.id}.`, 403),
     );
   }
