@@ -48,7 +48,7 @@ exports.authorize = (...roles) => {
     if (!roles.includes(req.user.role)) {
       return next(
         new ErrorResponse(
-          `Certain permission is not met to access this resourece.`,
+          `Certain permission is not met to access this resource.`,
           403,
         ),
       );
