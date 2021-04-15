@@ -1,14 +1,14 @@
 const express = require('express');
 
 // Controllers
-const { getReviews, getReview } = require('../controllers/review');
+const { getReviews, getReview, addReview } = require('../controllers/review');
 
 // Models
 const Review = require('../models/Review');
 
 // Middlewares
 const advancedResults = require('../middlewares/advancedResults');
-const { protect } = require('../middlewares/auth');
+const { protect, authorize } = require('../middlewares/auth');
 
 const router = express.Router({ mergeParams: true });
 
@@ -19,7 +19,10 @@ const toPopulate = {
   select: 'name description',
 };
 
-router.route('/').get(advancedResults(Review, toPopulate), getReviews);
+router
+  .route('/')
+  .get(advancedResults(Review, toPopulate), getReviews)
+  .post(protect, authorize('user', 'admin'), addReview);
 
 router.route('/:id').get(getReview);
 
