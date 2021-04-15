@@ -85,7 +85,9 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
 
   // Check if current user is not an owner or an admin
   if (!review.user.equals(_id) && role !== 'admin')
-    next(new ErrorResponse(`Permission denied to update the review.`, 403));
+    return next(
+      new ErrorResponse(`Permission denied to update the review.`, 403),
+    );
 
   // Used this way to update because,
   // there is no post mongoose hook for findByIdAndUpdate
@@ -98,5 +100,33 @@ exports.updateReview = asyncHandler(async (req, res, next) => {
     data: {
       message: 'Fields updated.',
     },
+  });
+});
+
+// @desc    Delete a review
+// @route   DELETE /api/v1/reviews/:id
+// @access  Private
+exports.deleteReview = asyncHandler(async (req, res, next) => {
+  const { _id, role } = req.user;
+  const review = await Review.findById(req.params.id);
+
+  if (!review) {
+    return next(
+      new ErrorResponse(`Review with ID ${req.params.id} is not found.`, 404),
+    );
+  }
+
+  // Check if current user is not an owner or an admin
+  if (!review.user.equals(_id) && role !== 'admin') {
+    return next(
+      new ErrorResponse(`Permission denied to delete ${req.params.id}.`, 403),
+    );
+  }
+
+  await review.remove();
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
