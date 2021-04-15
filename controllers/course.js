@@ -9,7 +9,7 @@ const ErrorResponse = require('../utils/errorResponse');
 // @access  Public
 exports.getCourses = asyncHandler(async (req, res, next) => {
   if (req.params.bootcampID) {
-    const courses = Course.find({
+    const courses = await Course.find({
       bootcamp: req.params.bootcampID,
     });
 
