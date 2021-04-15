@@ -126,7 +126,7 @@ exports.deleteCourse = asyncHandler(async (req, res, next) => {
   // Check if current user is not an owner or an admin
   if (!course.user.equals(_id) && role !== 'admin') {
     next(
-      new ErrorResponse(`Permission denied to update ${req.params.id}.`, 403),
+      new ErrorResponse(`Permission denied to delete ${req.params.id}.`, 403),
     );
   }
 
