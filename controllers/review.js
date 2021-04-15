@@ -53,3 +53,18 @@ exports.getReview = asyncHandler(async (req, res, next) => {
     data: review,
   });
 });
+
+// @desc    Add a review
+// @route   POST /api/v1/bootcamps/:bootcampID/reviews
+// @access  Public
+exports.addReview = asyncHandler(async (req, res, next) => {
+  req.body.bootcamp = req.params.bootcampID;
+  req.body.user = req.user._id;
+
+  const review = await Review.create(req.body);
+
+  res.status(200).json({
+    success: true,
+    data: review,
+  });
+});
