@@ -1,7 +1,7 @@
 const express = require('express');
 
 // Controllers
-const { getReviews } = require('../controllers/review');
+const { getReviews, getReview } = require('../controllers/review');
 
 // Models
 const Review = require('../models/Review');
@@ -20,5 +20,7 @@ const toPopulate = {
 };
 
 router.route('/').get(advancedResults(Review, toPopulate), getReviews);
+
+router.route('/:id').get(getReview);
 
 module.exports = router;
