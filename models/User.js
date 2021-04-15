@@ -72,4 +72,24 @@ UserSchema.pre('save', async function (next) {
 
   next();
 });
+
+// Cascade delete bootcamp associated with a user
+UserSchema.pre('remove', async function (next) {
+  // Get the bootcamps by the user.
+  // Either import the Bootcamp model or access it via this.model
+  const bootcamps = await this.model('Bootcamp')
+    .find({
+      user: this._id,
+    })
+    .select('_id');
+
+  // Delete all bootcamps by that user
+  for (bootcamp of bootcamps) {
+    const b = await this.model('Bootcamp').findById(bootcamp.id);
+    b.remove();
+  }
+
+  next();
+});
+
 module.exports = mongoose.model('User', UserSchema);
