@@ -62,6 +62,13 @@ const limiter = rateLimiter({
 app.use(limiter);
 app.use(cors());
 
+// Index Route
+app.get('/', (req, res) =>
+  res.json({
+    API_DOCS: 'https://documenter.getpostman.com/view/8103362/TzJrCeZN',
+  }),
+);
+
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
 app.use('/api/v1/courses', course);
