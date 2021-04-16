@@ -43,6 +43,11 @@ if (process.env.NODE_ENV === 'Development') {
   app.use(morgan('dev'));
 }
 
+// Add proxy setup for rate limiter to work
+if (process.env.NODE_ENV === 'Production') {
+  app.set('trust proxy', 1);
+}
+
 app.use(fileUpload());
 app.use(cookieParser());
 app.use(mongoSanitize());
