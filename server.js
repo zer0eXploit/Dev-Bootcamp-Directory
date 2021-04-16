@@ -3,6 +3,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
+const mongoSanitize = require('express-mongo-sanitize');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
 
@@ -40,6 +41,7 @@ if (process.env.NODE_ENV === 'Development') {
 
 app.use(fileUpload());
 app.use(cookieParser());
+app.use(mongoSanitize());
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
