@@ -48,6 +48,18 @@ exports.authLogin = asyncHandler(async (req, res, next) => {
   sendTokenResponse(user, 200, res);
 });
 
+// @desc    Logs a user out
+// @route   POST /api/v1/auth/logout
+// @access  Public
+exports.authLogout = asyncHandler(async (req, res, next) => {
+  res.cookie('token', '', {
+    expires: new Date(Date.now() - 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(204).end();
+});
+
 // @desc    Request password reset email.
 // @route   POST /api/v1/auth/forgot-password
 // @access  Public
