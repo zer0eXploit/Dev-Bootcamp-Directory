@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const colors = require('colors');
 const helmet = require('helmet');
+const xss = require('xss-clean');
 const mongoSanitize = require('express-mongo-sanitize');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
@@ -44,6 +45,7 @@ app.use(fileUpload());
 app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(helmet());
+app.use(xss());
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
