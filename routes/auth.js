@@ -5,6 +5,7 @@ const express = require('express');
 const {
   authRegister,
   authLogin,
+  authLogout,
   authForgotPassword,
   authResetPassword,
   authGetMe,
@@ -19,6 +20,7 @@ const router = express.Router();
 
 router.route('/register').post(authRegister);
 router.route('/login').post(authLogin);
+router.route('/logout').get(authLogout);
 router.route('/forgot-password').post(authForgotPassword);
 router.route('/reset-password/:resetToken').put(authResetPassword);
 router.route('/me').get(protect, authGetMe);
