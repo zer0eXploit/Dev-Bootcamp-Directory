@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const colors = require('colors');
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const cors = require('cors');
 const rateLimiter = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const fileUpload = require('express-fileupload');
@@ -59,6 +60,7 @@ const limiter = rateLimiter({
 });
 
 app.use(limiter);
+app.use(cors());
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
