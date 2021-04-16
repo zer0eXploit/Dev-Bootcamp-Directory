@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const colors = require('colors');
 const helmet = require('helmet');
 const xss = require('xss-clean');
+const rateLimiter = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const fileUpload = require('express-fileupload');
 const cookieParser = require('cookie-parser');
@@ -46,6 +47,18 @@ app.use(cookieParser());
 app.use(mongoSanitize());
 app.use(helmet());
 app.use(xss());
+
+// Rate Limiting
+const limiter = rateLimiter({
+  windowMs: 10 * 60 * 1000,
+  max: 100,
+  message: {
+    success: false,
+    error: 'Too many requests. Please try again.',
+  },
+});
+
+app.use(limiter);
 
 // Mount Routers
 app.use('/api/v1/bootcamps', bootcamp);
