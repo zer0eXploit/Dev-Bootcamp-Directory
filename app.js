@@ -18,7 +18,9 @@ const errorHandler = require('./middlewares/errorHandler');
 dotenv.config({ path: './configs/config.env' });
 
 // Connect to DB
-connectDB();
+if (process.env.NODE_ENV !== 'Testing') {
+  connectDB();
+}
 
 // Routers
 const bootcamp = require('./routes/bootcamp');
