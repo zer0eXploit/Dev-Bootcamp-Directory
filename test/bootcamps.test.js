@@ -13,8 +13,7 @@ const bootcamp = {
   _id: '5d713995b721c3bb38c1f5d0',
   user: '5d7a514b5d2c12c7449be045',
   name: 'Devworks Bootcamp',
-  description:
-    'Devworks is a full stack JavaScript Bootcamp located in the heart of Boston that focuses on the technologies you need to get a high paying job as a web developer',
+  description: 'A great catchy description',
   website: 'https://devworks.com',
   phone: '(111) 111-1111',
   email: 'enroll@devworks.com',
@@ -157,5 +156,31 @@ describe('Bootcamps Routes Tests. [POST]', function () {
       .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
       .send(adminBootcamp)
       .expect(201);
+  });
+});
+
+describe('Bootcamps within a specified radius of a place. [GET]', function () {
+  this.timeout(20000);
+
+  before(async function () {
+    await Bootcamp.create(bootcamp);
+  });
+
+  after(async function () {
+    await Bootcamp.deleteMany();
+  });
+
+  it('Respond to a request.', async function () {
+    await request.get(`${endPoint}/radius/02215/1`);
+  });
+
+  it('Respond with at lease one bootcamp.', async function () {
+    const response = await request.get(`${endPoint}/radius/02215/1`);
+    expect(response.body.data.length).to.be.greaterThanOrEqual(1);
+  });
+
+  it('No bootcamp if there is none in the specified area.', async function () {
+    const response = await request.get(`${endPoint}/radius/11041/1`);
+    expect(response.body.data.length).to.be.equal(0);
   });
 });
