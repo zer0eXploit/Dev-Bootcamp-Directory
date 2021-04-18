@@ -47,6 +47,8 @@ router.use('/:bootcampID/reviews', reviewRouter);
 
 router.route('/radius/:zipCode/:distance').get(getBootcampsWithinRadius);
 
-router.route('/:id/photo').put(uploadBootcampPhoto);
+router
+  .route('/:id/photo')
+  .put(protect, authorize('publisher', 'admin'), uploadBootcampPhoto);
 
 module.exports = router;
