@@ -47,3 +47,41 @@ after(function () {
   // Close DB connection
   mongoose.disconnect();
 });
+
+describe('Individual Bootcamp Route Tests. [GET]', function () {
+  this.timeout(10000);
+
+  before(async function () {
+    await Bootcamp.create(bootcamp);
+  });
+
+  after(async function () {
+    await Bootcamp.deleteMany();
+  });
+
+  it('Respond to a request.', async function () {
+    await request.get(`${endPoint}/${bootcamp._id}`);
+  });
+
+  it('Respond with a 404 if there is no specified bootcamp.', async function () {
+    const idNotInDB = '8d713995b721c3bb38c1f5d0';
+    const statusCode = await (await request.get(`${endPoint}/${idNotInDB}`))
+      .status;
+    expect(statusCode).to.equal(404);
+  });
+
+  it('Respond with a 404 if invalid bootcamp ID is supplied.', async function () {
+    const statusCode = await (await request.get(`${endPoint}/invalidID`))
+      .status;
+    expect(statusCode).to.equal(404);
+  });
+
+  it('Respond with a status of 200 if a bootcamp is found.', async function () {
+    await request.get(`${endPoint}/${bootcamp._id}`).expect(200);
+  });
+
+  it('Contain one bootcamp info in respond body.', async function () {
+    const response = await request.get(`${endPoint}`);
+    expect(response.body.data.length).to.be.equal(1);
+  });
+});
