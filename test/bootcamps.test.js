@@ -11,7 +11,7 @@ const endPoint = '/api/v1/bootcamps';
 
 const bootcamp = {
   _id: '5d713995b721c3bb38c1f5d0',
-  user: '5d7a514b5d2c12c7449be045',
+  user: '607c2e7951e97dcba431a3b8',
   name: 'Devworks Bootcamp',
   description: 'A great catchy description',
   website: 'https://devworks.com',
@@ -182,5 +182,100 @@ describe('Bootcamps within a specified radius of a place. [GET]', function () {
   it('No bootcamp if there is none in the specified area.', async function () {
     const response = await request.get(`${endPoint}/radius/11041/1`);
     expect(response.body.data.length).to.be.equal(0);
+  });
+});
+
+describe('Tests for bootcamp photo upload route. [PUT]', function () {
+  this.timeout(20000);
+
+  before(async function () {
+    await Bootcamp.create(bootcamp);
+
+    const anotherBootcamp = { ...bootcamp };
+    anotherBootcamp._id = '5d713995b721c3bb38c1f5d6';
+    (anotherBootcamp.user = '607c2e7951e97dcba431a3b6'),
+      (anotherBootcamp.name = 'Another Bootcamp');
+    await Bootcamp.create(anotherBootcamp);
+  });
+
+  after(async function () {
+    await Bootcamp.deleteMany();
+  });
+
+  it('Respond with 401 status if Authorization header is not present.', async function () {
+    const statusCode = await (
+      await request.put(`${endPoint}/${bootcamp._id}/photo`)
+    ).status;
+    expect(statusCode).to.equal(401);
+  });
+
+  it('Respond with 401 status if Authorization token is invalid.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .set('Authorization', 'Bearer InvalidToken')
+      .expect(401);
+  });
+
+  it('A user shall not upload a bootcamp photo.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
+      .expect(403);
+  });
+
+  it('A photo must be present in the request.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(400);
+  });
+
+  it('The photo must be uploaded with field name file.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .attach('image', `test/images/photo.jpg`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(400);
+  });
+
+  it('A publisher shall be able to upload bootcamp photo.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .attach('file', `test/images/photo.jpg`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(200);
+  });
+
+  it('Shall only upload image.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .attach('file', `test/videos/example.mp4`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(400);
+  });
+
+  it('Abort when file size limit exceeded.', async function () {
+    await request
+      .put(`${endPoint}/${bootcamp._id}/photo`)
+      .attach('file', `test/images/large.jpg`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(413);
+  });
+
+  it('A publisher shall only upload their bootcamp photo.', async function () {
+    const id = '5d713995b721c3bb38c1f5d6';
+    await request
+      .put(`${endPoint}/${id}/photo`)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .expect(403);
+  });
+
+  it('An admin shall be able to upload photo to any bootcamp.', async function () {
+    const id = '5d713995b721c3bb38c1f5d6';
+    await request
+      .put(`${endPoint}/${id}/photo`)
+      .attach('file', `test/images/photo.jpg`)
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+      .expect(200);
   });
 });
