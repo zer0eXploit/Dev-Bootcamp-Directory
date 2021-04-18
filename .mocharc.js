@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 
-dotenv.config({ path: './configs/config-test.env' });
+dotenv.config({ path: `${__dirname}/configs/config-test.env` });
 
 module.exports = {
   color: true,
