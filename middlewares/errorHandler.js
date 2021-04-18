@@ -31,7 +31,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Log to console for dev
   if (process.env.NODE_ENV !== 'Testing') console.log(err.stack.red);
-  else console.log(`    ${error.message.yellow.inverse}`);
+  else console.log(`    ${error.message.black.bgBrightBlue}`);
 
   res.status(error.statusCode || 500).json({
     success: false,
