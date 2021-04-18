@@ -9,9 +9,6 @@ const errorHandler = (err, req, res, next) => {
   //Thus, we need to attach it manually
   error.message = err.message;
 
-  // Log to console for dev
-  console.log(err.stack.red);
-
   //   Invalid ObjectID error
   if (err.name === 'CastError') {
     const message = `Resource not found.`;
@@ -31,6 +28,10 @@ const errorHandler = (err, req, res, next) => {
       .join(' ');
     error = new ErrorResponse(message, 400);
   }
+
+  // Log to console for dev
+  if (process.env.NODE_ENV !== 'Testing') console.log(err.stack.red);
+  else console.log(`    ${error.message.yellow.inverse}`);
 
   res.status(error.statusCode || 500).json({
     success: false,
