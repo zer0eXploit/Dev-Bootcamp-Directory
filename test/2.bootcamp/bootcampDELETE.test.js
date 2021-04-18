@@ -1,11 +1,11 @@
-const app = require('../app');
+const app = require('../../app');
 
 const request = require('supertest')(app);
 const mongoose = require('mongoose');
 const expect = require('chai').expect;
 
 // Models
-const Bootcamp = require('../models/Bootcamp');
+const Bootcamp = require('../../models/Bootcamp');
 
 const endPoint = '/api/v1/bootcamps';
 
@@ -38,7 +38,11 @@ before(function (done) {
       useUnifiedTopology: true,
     })
     .then(() => {
-      done();
+      const newBootcamp = { ...bootcamp };
+      newBootcamp.name = 'Test I';
+      newBootcamp._id = '5d713995b721c3bb38c1f5aa';
+      newBootcamp.user = '607c2e7951e97dcba431a3b9';
+      Bootcamp.create(newBootcamp).then(() => done());
     });
 });
 
@@ -47,17 +51,11 @@ after(function () {
   mongoose.disconnect();
 });
 
-describe('Individual Bootcamp Route Tests. [PUT]', function () {
+describe('Individual Bootcamp Route Tests. [DELETE]', function () {
   this.timeout(10000);
 
   before(async function () {
     await Bootcamp.create(bootcamp);
-
-    const newBootcamp = { ...bootcamp };
-    newBootcamp.name = 'Test I';
-    newBootcamp._id = '5d713995b721c3bb38c1f5aa';
-    newBootcamp.user = '607c2e7951e97dcba431a3b9';
-    await Bootcamp.create(newBootcamp);
   });
 
   after(async function () {
@@ -65,25 +63,26 @@ describe('Individual Bootcamp Route Tests. [PUT]', function () {
   });
 
   it('Respond to a request.', async function () {
-    await request.put(`${endPoint}/${bootcamp._id}`);
+    await request.delete(`${endPoint}/${bootcamp._id}`);
   });
 
   it('Respond with 401 if Authorization header is not present.', async function () {
-    const statusCode = await (await request.put(`${endPoint}/${bootcamp._id}`))
-      .status;
+    const statusCode = await (
+      await request.delete(`${endPoint}/${bootcamp._id}`)
+    ).status;
     expect(statusCode).to.equal(401);
   });
 
   it('Respond with 401 if Authorization token is invalid.', async function () {
     await request
-      .put(`${endPoint}/${bootcamp._id}`)
+      .delete(`${endPoint}/${bootcamp._id}`)
       .set('Authorization', 'Bearer InvalidToken')
       .expect(401);
   });
 
-  it('A user shall not update a bootcamp.', async function () {
+  it('A user shall not delete a bootcamp.', async function () {
     await request
-      .put(`${endPoint}/${bootcamp._id}`)
+      .delete(`${endPoint}/${bootcamp._id}`)
       .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
       .expect(403);
   });
@@ -92,37 +91,37 @@ describe('Individual Bootcamp Route Tests. [PUT]', function () {
     const idNotInDB = '8d713995b721c3bb38c1f5d0';
 
     await request
-      .put(`${endPoint}/${idNotInDB}`)
+      .delete(`${endPoint}/${idNotInDB}`)
       .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
       .expect(404);
   });
 
   it('Respond with a 404 if invalid bootcamp ID is supplied.', async function () {
     await request
-      .put(`${endPoint}/invalidID`)
+      .delete(`${endPoint}/invalidID`)
       .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
       .expect(404);
   });
 
-  it('Publisher shall be able to update their bootcamp.', async function () {
+  it('Publisher shall be able to delete their bootcamp.', async function () {
     await request
-      .put(`${endPoint}/${bootcamp._id}`)
+      .delete(`${endPoint}/${bootcamp._id}`)
       .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
       .expect(200);
   });
 
-  it('Publisher can only update their own bootcamp.', async function () {
+  it('Publisher can only delete their own bootcamp.', async function () {
     const alreadyCreated = '5d713995b721c3bb38c1f5aa';
     await request
-      .put(`${endPoint}/${alreadyCreated}`)
+      .delete(`${endPoint}/${alreadyCreated}`)
       .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
       .expect(403);
   });
 
-  it('Admin can update any bootcamp.', async function () {
+  it('Admin can delete any bootcamp.', async function () {
     const alreadyCreated = '5d713995b721c3bb38c1f5aa';
     await request
-      .put(`${endPoint}/${alreadyCreated}`)
+      .delete(`${endPoint}/${alreadyCreated}`)
       .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
       .expect(200);
   });

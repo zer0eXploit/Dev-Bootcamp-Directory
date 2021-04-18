@@ -1,11 +1,11 @@
-const app = require('../app');
+const app = require('../../app');
 
 const request = require('supertest')(app);
 const mongoose = require('mongoose');
 const expect = require('chai').expect;
 
 // Models
-const Bootcamp = require('../models/Bootcamp');
+const Bootcamp = require('../../models/Bootcamp');
 
 const endPoint = '/api/v1/bootcamps';
 
@@ -79,6 +79,32 @@ describe('Bootcamps Routes Tests. [GET]', function () {
   it('Should contain at least one bootcamp info in respond body.', async function () {
     const response = await request.get(endPoint);
     expect(response.body.data.length).to.be.greaterThanOrEqual(1);
+  });
+});
+
+describe('Bootcamps within a specified radius of a place. [GET]', function () {
+  this.timeout(20000);
+
+  before(async function () {
+    await Bootcamp.create(bootcamp);
+  });
+
+  after(async function () {
+    await Bootcamp.deleteMany();
+  });
+
+  it('Respond to a request.', async function () {
+    await request.get(`${endPoint}/radius/02215/1`);
+  });
+
+  it('Respond with at lease one bootcamp.', async function () {
+    const response = await request.get(`${endPoint}/radius/02215/1`);
+    expect(response.body.data.length).to.be.greaterThanOrEqual(1);
+  });
+
+  it('No bootcamp if there is none in the specified area.', async function () {
+    const response = await request.get(`${endPoint}/radius/11041/1`);
+    expect(response.body.data.length).to.be.equal(0);
   });
 });
 
@@ -156,32 +182,6 @@ describe('Bootcamps Routes Tests. [POST]', function () {
       .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
       .send(adminBootcamp)
       .expect(201);
-  });
-});
-
-describe('Bootcamps within a specified radius of a place. [GET]', function () {
-  this.timeout(20000);
-
-  before(async function () {
-    await Bootcamp.create(bootcamp);
-  });
-
-  after(async function () {
-    await Bootcamp.deleteMany();
-  });
-
-  it('Respond to a request.', async function () {
-    await request.get(`${endPoint}/radius/02215/1`);
-  });
-
-  it('Respond with at lease one bootcamp.', async function () {
-    const response = await request.get(`${endPoint}/radius/02215/1`);
-    expect(response.body.data.length).to.be.greaterThanOrEqual(1);
-  });
-
-  it('No bootcamp if there is none in the specified area.', async function () {
-    const response = await request.get(`${endPoint}/radius/11041/1`);
-    expect(response.body.data.length).to.be.equal(0);
   });
 });
 

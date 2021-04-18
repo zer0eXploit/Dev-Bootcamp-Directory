@@ -1,11 +1,11 @@
-const app = require('../app');
+const app = require('../../app');
 
 const request = require('supertest')(app);
 const mongoose = require('mongoose');
 const expect = require('chai').expect;
 
 // Models
-const Bootcamp = require('../models/Bootcamp');
+const Bootcamp = require('../../models/Bootcamp');
 
 const endPoint = '/api/v1/bootcamps';
 
