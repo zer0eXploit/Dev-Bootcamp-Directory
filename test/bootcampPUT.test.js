@@ -38,11 +38,7 @@ before(function (done) {
       useUnifiedTopology: true,
     })
     .then(() => {
-      const newBootcamp = { ...bootcamp };
-      newBootcamp.name = 'Test I';
-      newBootcamp._id = '5d713995b721c3bb38c1f5aa';
-      newBootcamp.user = '607c2e7951e97dcba431a3b9';
-      Bootcamp.create(newBootcamp).then(() => done());
+      done();
     });
 });
 
@@ -56,6 +52,12 @@ describe('Individual Bootcamp Route Tests. [PUT]', function () {
 
   before(async function () {
     await Bootcamp.create(bootcamp);
+
+    const newBootcamp = { ...bootcamp };
+    newBootcamp.name = 'Test I';
+    newBootcamp._id = '5d713995b721c3bb38c1f5aa';
+    newBootcamp.user = '607c2e7951e97dcba431a3b9';
+    await Bootcamp.create(newBootcamp);
   });
 
   after(async function () {
