@@ -63,9 +63,15 @@ CourseSchema.statics.setAverageCost = async function (bootcampID) {
 
   // Insert into db
   try {
-    await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
-      averageCost: Math.ceil(avgCost[0]['avgCost'] / 10) * 10,
-    });
+    if (!!!avgCost.length) {
+      await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
+        averageCost: 0,
+      });
+    } else {
+      await this.model('Bootcamp').findByIdAndUpdate(bootcampID, {
+        averageCost: Math.ceil(avgCost[0]['avgCost'] / 10) * 10,
+      });
+    }
   } catch (e) {
     console.log(e);
   }
