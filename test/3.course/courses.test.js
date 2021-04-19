@@ -7,7 +7,6 @@ const expect = require('chai').expect;
 // Models
 const Bootcamp = require('../../models/Bootcamp');
 const Course = require('../../models/Course');
-const expressMongoSanitize = require('express-mongo-sanitize');
 
 // Dummy data for test
 const bootcamp = {
@@ -63,7 +62,7 @@ after(function () {
   mongoose.disconnect();
 });
 
-describe('Return all courses in the directory.', function () {
+describe('Courses from all bootcamps [GET].', function () {
   this.timeout(0);
 
   before(async function () {
@@ -94,7 +93,7 @@ describe('Return all courses in the directory.', function () {
   });
 });
 
-describe('Courses from a bootcamp.', function () {
+describe('Courses from a bootcamp. [GET]', function () {
   this.timeout(0);
 
   before(async function () {
@@ -130,5 +129,65 @@ describe('Courses from a bootcamp.', function () {
       '/api/v1/bootcamps/5d713995b721c3bb38c1f5d1/courses',
     );
     expect(response.status).to.be.equal(200);
+  });
+});
+
+describe('Creating a course under a bootcamp. [POST]', function () {
+  this.timeout(0);
+
+  before(async function () {
+    await Bootcamp.create(bootcamp);
+  });
+
+  after(async function () {
+    await Bootcamp.deleteMany();
+    await Course.deleteMany();
+  });
+
+  it('Respond with 401 status if Authorization header is not present.', async function () {
+    const statusCode = await (await request.post(coursesInABootcampUri)).status;
+    expect(statusCode).to.equal(401);
+  });
+
+  it('Respond with 401 status if Authorization token is invalid.', async function () {
+    await request
+      .post(coursesInABootcampUri)
+      .set('Authorization', 'Bearer InvalidToken')
+      .expect(401);
+  });
+
+  it('A user shall not create a course.', async function () {
+    await request
+      .post(coursesInABootcampUri)
+      .set('Authorization', `Bearer ${process.env.USER_TOKEN}`)
+      .expect(403);
+  });
+
+  it('A publisher shall be able to create a course.', async function () {
+    await request
+      .post(coursesInABootcampUri)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .send(course)
+      .expect(201);
+  });
+
+  it('A publisher shall be able to create more than one course.', async function () {
+    const newCourse = { ...course };
+    newCourse._id = undefined;
+    await request
+      .post(coursesInABootcampUri)
+      .set('Authorization', `Bearer ${process.env.PUBLISHER_TOKEN}`)
+      .send(newCourse)
+      .expect(201);
+  });
+
+  it('An admin shall be able to create a course.', async function () {
+    const newCourse = { ...course };
+    newCourse._id = undefined;
+    await request
+      .post(coursesInABootcampUri)
+      .set('Authorization', `Bearer ${process.env.ADMIN_TOKEN}`)
+      .send(newCourse)
+      .expect(201);
   });
 });
