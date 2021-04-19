@@ -25,7 +25,7 @@ const bootcamp = {
 };
 
 const course = {
-  _id: '5d725a4a7b292f5f8ceff789',
+  _id: '5d725a4a7b292f5f8ceff661',
   title: 'Front End Web Development',
   description: 'Nice course.',
   weeks: 8,
@@ -60,7 +60,7 @@ after(function () {
   mongoose.disconnect();
 });
 
-describe('Individual Bootcamp Route Tests. [PUT]', function () {
+describe('Individual Course Route Tests. [PUT]', function () {
   this.timeout(0);
 
   before(async function () {
