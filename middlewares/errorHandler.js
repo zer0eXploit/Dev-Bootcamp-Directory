@@ -31,7 +31,11 @@ const errorHandler = (err, req, res, next) => {
 
   // Log to console for dev
   if (process.env.NODE_ENV !== 'Testing') console.log(err.stack.red);
-  else console.log(`    ${error.message.black.bgBrightBlue}`);
+  else {
+    if (process.env.SHOW_LOGS_IN_TEST === '1') {
+      console.log(`    ${error.message.black.bgBrightBlue}`);
+    }
+  }
 
   res.status(error.statusCode || 500).json({
     success: false,
