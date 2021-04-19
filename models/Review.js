@@ -78,7 +78,6 @@ ReviewSchema.pre('save', function (next) {
 
 ReviewSchema.pre('remove', function (next) {
   // this.constructor is the Review Model itself
-  console.log('I should be removed?');
   this.constructor.setAverageRating(this.bootcamp);
   next();
 });
